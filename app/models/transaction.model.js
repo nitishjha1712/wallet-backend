@@ -29,7 +29,7 @@ module.exports = (sequelize, Sequelize) => {
         date: {
             type: Sequelize.VIRTUAL,
             get() {
-                return Date(this.createdAt);
+                return this.createdAt;
             }
         }
     });

@@ -36,7 +36,7 @@ const addTransaction = async (req, res) => {
         amountValidation(reqData.amount);
 
         let wallet = await Wallet.findByPk(req.params.walletId);
-        // console.log("wallet", wallet);
+        console.log("wallet", wallet);
         if(!wallet){
             throw createError(404, "Wallet not found");
         }
@@ -46,13 +46,14 @@ const addTransaction = async (req, res) => {
         checkSufficientBalance(reqData.transactionType, wallet.balance, reqData.amount);
         
         let balance = parseToFloat(wallet.balance) + parseToFloat(reqData.amount);
+        console.log("balance", balance);
 
-        await wallet.update({balance}, { transaction : t2 });
+        await wallet.update({WalletBalance : balance}, { transaction : t2 });
 
         await updateTransactionBalance(balance, transaction.id, t2);
 
         await t2.commit();
-        return res.status(200).send({balance, transactionId : transaction.id});
+        return res.status(200).send({balance : toFixedDecimal(balance, 4), transactionId : transaction.id});
     } catch(error){
         console.log("Error", error);
         await t2.rollback();
@@ -73,7 +74,9 @@ const getTransactions = async(req, res) => {
             throw createError(404, "No Transaction found");
         }
 
-        return res.status(200).send(transaction);
+        const totalCount = await Transaction.count({where : {walletId}});
+
+        return res.status(200).send({data : transaction, count : totalCount});
     } catch(error){
         let message = error.message ? error.message : error;
         let status = error.status ? error.status : 500;
@@ -149,7 +152,7 @@ const updateTransactionBalance = async(amount, transactionId, transaction) => {
 }
 
 const checkSufficientBalance = (transactionType, balance, amount) => {
-    if(transactionType == "debit" && (balance <= 0 || parseToFloat(balance) < parseToFloat(amount))){
+    if(transactionType.toLowerCase() == "debit" && (balance <= 0 || parseToFloat(balance) < parseToFloat(amount.slice(1)))){
         throw createError(400, "Insufficient balance for debit");
     }
 }
