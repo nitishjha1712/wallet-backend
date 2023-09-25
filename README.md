@@ -35,5 +35,5 @@ npm start
 | GET         | /transactions?walletId=walletId&skip=0&limit=10  |Get all transaction of a wallet|          | {"count":24,"data":[{"id":22,"walletId":14,"amount":"54.0000","balance":"54.0000","description":"wallet setup","date":"2023-09-24T19:54:01.000Z","transactionType":"credit"}]}           | 
 
 
-## 🔗 Collection link
+## 🔗 API Collection link
 [Postman Collection] (https://api.postman.com/collections/16183338-9bf3edbd-2653-48a4-bcf3-339ca8340498?access_key=PMAT-01HB5PQM3NXQ560X1GG4MCVBTV)
