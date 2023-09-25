@@ -36,7 +36,7 @@ const addTransaction = async (req, res) => {
         amountValidation(reqData.amount);
 
         let wallet = await Wallet.findByPk(req.params.walletId);
-        console.log("wallet", wallet);
+    
         if(!wallet){
             throw createError(404, "Wallet not found");
         }
@@ -46,7 +46,6 @@ const addTransaction = async (req, res) => {
         checkSufficientBalance(reqData.transactionType, wallet.balance, reqData.amount);
         
         let balance = parseToFloat(wallet.balance) + parseToFloat(reqData.amount);
-        console.log("balance", balance);
 
         await wallet.update({WalletBalance : balance}, { transaction : t2 });
 
@@ -75,8 +74,25 @@ const getTransactions = async(req, res) => {
         }
 
         const totalCount = await Transaction.count({where : {walletId}});
+        
+        let responseJson = {count : totalCount};
+        let responseJsonData = [];
+        transaction.map((elem) => {
+            let tmpResponse = {
+                id : elem.id,
+                walletId : elem.walletId,
+                amount : elem.amount,
+                balance : elem.balance,
+                description : elem.description,
+                date : elem.date,
+                transactionType: elem.transactionType
+            };
+            responseJsonData.push(tmpResponse);
+        })
 
-        return res.status(200).send({data : transaction, count : totalCount});
+        responseJson['data'] = responseJsonData;
+
+        return res.status(200).send(responseJson);
     } catch(error){
         let message = error.message ? error.message : error;
         let status = error.status ? error.status : 500;
